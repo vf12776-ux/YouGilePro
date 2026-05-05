@@ -19,7 +19,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             padding: 20px;
         }
         .card {
@@ -59,13 +59,28 @@
             border-radius: 60px;
             font-size: 18px;
             font-weight: 600;
-            background: #2563eb;
-            color: white;
             cursor: pointer;
             transition: 0.2s;
+            margin-top: 12px;
         }
         button:active {
             transform: scale(0.97);
+        }
+        .btn-android {
+            background: #2563eb;
+            color: white;
+        }
+        .btn-ios {
+            background: linear-gradient(135deg, #1e1e2f, #2c2c3a);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            font-size: 20px;
+            letter-spacing: 0.5px;
+        }
+        .btn-ios::before {
+            content: "🍏 ";
+            font-size: 24px;
         }
         .info {
             font-size: 13px;
@@ -80,68 +95,96 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.75);
             align-items: center;
             justify-content: center;
             z-index: 1000;
         }
         .modal-content {
             background: white;
-            border-radius: 32px;
+            border-radius: 48px;
             max-width: 300px;
-            width: 90%;
-            padding: 24px;
+            width: 85%;
+            padding: 28px 20px;
             text-align: center;
+            box-shadow: 0 25px 40px rgba(0,0,0,0.3);
         }
         .modal-content h3 {
-            margin-top: 0;
-            font-size: 20px;
+            font-size: 24px;
+            margin: 0 0 16px;
+            font-weight: 700;
         }
-        .modal-steps {
+        .steps {
             text-align: left;
-            margin: 20px 0;
+            margin: 24px 0;
         }
-        .modal-steps p {
+        .step {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin: 16px 0;
-            font-size: 16px;
+            gap: 16px;
+            margin-bottom: 24px;
+            font-size: 18px;
+            font-weight: 500;
         }
-        .modal-steps span {
+        .step-number {
             background: #e2e8f0;
-            width: 32px;
-            height: 32px;
-            display: inline-flex;
+            width: 40px;
+            height: 40px;
+            border-radius: 40px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 30px;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 20px;
+        }
+        .step-text {
+            flex: 1;
+        }
+        .step-icon {
+            font-size: 28px;
         }
         .close-modal {
-            background: #000;
-            margin-top: 16px;
+            background: #2563eb;
+            color: white;
+            margin-top: 8px;
         }
     </style>
 </head>
 <body>
-<div class="card" id="card">
+<div class="card">
     <div class="logo">📋</div>
     <h1>YouGile Pro</h1>
     <div class="sub">Быстрый доступ к порталу</div>
-    <button id="installBtn">Установить приложение</button>
-    <div class="info">После установки откройте приложение с иконки — портал запустится в браузере</div>
+
+    <!-- Кнопка для Android (видна всегда, на iOS будет скрыта) -->
+    <button id="androidBtn" class="btn-android">📲 Установить приложение</button>
+
+    <!-- Кнопка для iOS (видна только на iPhone/iPad) -->
+    <button id="iosBtn" class="btn-ios" style="display: none;"> ДЛЯ iOS — установить</button>
+
+    <div class="info">После установки откройте приложение с иконки — портал откроется в браузере</div>
 </div>
 
 <!-- Модалка для iOS -->
 <div id="iosModal" class="modal">
     <div class="modal-content">
-        <h3>📱 Установка на iPhone / iPad</h3>
-        <div class="modal-steps">
-            <p><span>1</span> Нажмите «Поделиться»</p>
-            <p><span>2</span> Выберите «На экран «Домой»</p>
-            <p><span>3</span> Нажмите «Добавить»</p>
+        <h3>🍏 Установка на iPhone / iPad</h3>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-text">Нажмите «Поделиться»</div>
+                <div class="step-icon">📤</div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-text">Выберите «На экран «Домой»</div>
+                <div class="step-icon">🏠</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-text">Нажмите «Добавить»</div>
+                <div class="step-icon">✅</div>
+            </div>
         </div>
         <button class="close-modal" id="closeModal">Понятно, добавить</button>
     </div>
@@ -151,7 +194,7 @@
     (function() {
         const TARGET = 'https://www.yougile.com/board/6ld5e6qu67te';
         
-        // Если приложение уже установлено и запущено с иконки
+        // Если приложение уже установлено и запущено с иконки — редирект в браузер
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
                              ('standalone' in window.navigator && window.navigator.standalone === true);
         if (isStandalone) {
@@ -160,13 +203,18 @@
         }
 
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const installBtn = document.getElementById('installBtn');
+        const androidBtn = document.getElementById('androidBtn');
+        const iosBtn = document.getElementById('iosBtn');
         const modal = document.getElementById('iosModal');
         const closeModal = document.getElementById('closeModal');
 
         if (isIOS) {
-            // iOS: показываем модалку с инструкцией
-            installBtn.addEventListener('click', () => {
+            // Скрываем кнопку Android, показываем кнопку iOS
+            androidBtn.style.display = 'none';
+            iosBtn.style.display = 'block';
+            
+            // По клику на кнопку iOS показываем модалку с инструкцией
+            iosBtn.addEventListener('click', () => {
                 modal.style.display = 'flex';
             });
             closeModal.addEventListener('click', () => {
@@ -176,32 +224,28 @@
                 if (e.target === modal) modal.style.display = 'none';
             });
         } else {
-            // Android: beforeinstallprompt
+            // Android: ничего не меняем, работает как раньше
             let deferredPrompt = null;
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
-                installBtn.disabled = false;
+                androidBtn.disabled = false;
             });
-            installBtn.addEventListener('click', () => {
+            androidBtn.addEventListener('click', () => {
                 if (deferredPrompt) {
                     deferredPrompt.prompt();
                     deferredPrompt.userChoice.then((choiceResult) => {
                         if (choiceResult.outcome === 'accepted') {
-                            installBtn.innerText = '✅ Приложение установлено!';
-                            installBtn.disabled = true;
+                            androidBtn.innerText = '✅ Приложение установлено!';
+                            androidBtn.disabled = true;
                         }
                         deferredPrompt = null;
                     });
-                } else {
-                    // На случай если beforeinstallprompt не сработал (редко, но можно просто показать инструкцию)
-                    modal.style.display = 'flex';
-                    closeModal.onclick = () => modal.style.display = 'none';
                 }
             });
         }
 
-        // Service Worker для Chrome
+        // Service Worker для beforeinstallprompt на Android
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW error', e));
         }
