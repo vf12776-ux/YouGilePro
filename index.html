@@ -7,12 +7,8 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon45-192.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; }
         body {
             margin: 0;
             min-height: 100vh;
@@ -23,14 +19,14 @@
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
             padding: 20px;
         }
-        .container {
-            max-width: 400px;
+        .card {
+            max-width: 360px;
             width: 100%;
             background: white;
             border-radius: 48px;
-            padding: 32px 24px 40px;
-            box-shadow: 0 20px 35px -8px rgba(0,0,0,0.1);
+            padding: 40px 24px;
             text-align: center;
+            box-shadow: 0 20px 35px -8px rgba(0,0,0,0.1);
         }
         .logo {
             width: 88px;
@@ -44,15 +40,8 @@
             font-size: 48px;
             color: white;
         }
-        h1 {
-            font-size: 28px;
-            margin: 0 0 8px;
-        }
-        .sub {
-            color: #475569;
-            margin-bottom: 32px;
-            font-size: 16px;
-        }
+        h1 { font-size: 28px; margin: 0 0 8px; }
+        .sub { color: #475569; margin-bottom: 32px; font-size: 16px; }
         button {
             width: 100%;
             padding: 16px;
@@ -63,155 +52,141 @@
             background: #2563eb;
             color: white;
             cursor: pointer;
-            margin-top: 12px;
             transition: 0.2s;
         }
-        button:active {
-            transform: scale(0.97);
+        button:active { transform: scale(0.97); }
+        .info {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 24px;
         }
-        .android-btn {
-            background: #2563eb;
-        }
-        .ios-btn {
-            background: #000000;
-            display: flex;
+        /* Модальное окно для iOS */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            z-index: 1000;
         }
-        .ios-btn span {
-            font-size: 20px;
+        .modal-content {
+            background: white;
+            border-radius: 32px;
+            max-width: 300px;
+            width: 90%;
+            padding: 24px;
+            text-align: center;
         }
-        .info {
-            background: #f8fafc;
-            padding: 16px;
-            border-radius: 24px;
-            margin-top: 24px;
-            font-size: 14px;
-            color: #334155;
-        }
-        .hidden {
-            display: none;
-        }
-        .step {
+        .modal-content h3 { margin-top: 0; }
+        .modal-steps {
             text-align: left;
-            margin-top: 16px;
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
+            margin: 20px 0;
         }
-        .step p {
-            margin: 0 0 8px;
-            font-weight: 600;
-        }
-        .step small {
-            color: #64748b;
-        }
-        .icon-row {
+        .modal-steps p {
             display: flex;
-            justify-content: center;
+            align-items: center;
             gap: 12px;
             margin: 12px 0;
         }
-        .icon-badge {
+        .modal-steps span {
             background: #e2e8f0;
-            padding: 6px 12px;
-            border-radius: 40px;
-            font-size: 13px;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 30px;
+            font-weight: bold;
+        }
+        .close-modal {
+            background: #000;
+            margin-top: 16px;
         }
     </style>
 </head>
 <body>
-<div class="container" id="app">
+<div class="card" id="card">
     <div class="logo">📋</div>
     <h1>YouGile Pro</h1>
     <div class="sub">Быстрый доступ к порталу</div>
+    <button id="installBtn">Установить приложение</button>
+    <div class="info">После установки откройте приложение с иконки — портал запустится в браузере</div>
+</div>
 
-    <!-- Кнопка для Android (показывается только если браузер поддерживает beforeinstallprompt) -->
-    <button id="installAndroid" class="android-btn hidden">📲 Установить приложение</button>
-
-    <!-- Блок для iOS (показывается на iPhone/iPad) -->
-    <div id="iosBlock" class="hidden">
-        <button id="showIosInstructions" class="ios-btn">
-            <span>🍏</span> Добавить на экран "Домой"
-        </button>
-        <div id="iosInstructions" class="step hidden">
-            <p>📲 Как установить на iPhone / iPad:</p>
-            <div class="icon-row">
-                <span class="icon-badge">1. Нажмите «Поделиться»</span>
-                <span class="icon-badge">2. «На экран «Домой»</span>
-                <span class="icon-badge">3. «Добавить»</span>
-            </div>
-            <small>После добавления иконки — открывайте портал с неё, и YouGile откроется в Safari</small>
+<!-- Модалка для iOS -->
+<div id="iosModal" class="modal">
+    <div class="modal-content">
+        <h3>📱 Как установить на iPhone / iPad</h3>
+        <div class="modal-steps">
+            <p><span>1</span> Нажмите кнопку «Поделиться»</p>
+            <p><span>2</span> Выберите «На экран «Домой»</p>
+            <p><span>3</span> Нажмите «Добавить»</p>
         </div>
-    </div>
-
-    <div class="info">
-        ✅ После установки приложения нажмите на иконку на рабочем столе — портал откроется в браузере
+        <button class="close-modal" id="closeModal">Понятно, спасибо</button>
     </div>
 </div>
 
 <script>
     (function() {
-        // Целевой URL YouGile
         const TARGET = 'https://www.yougile.com/board/6ld5e6qu67te';
         
-        // Проверка: запущено ли как PWA (с иконки)
+        // 1. Если приложение уже установлено и запущено с иконки — редирект в браузер
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
                              ('standalone' in window.navigator && window.navigator.standalone === true);
-        
         if (isStandalone) {
-            // Открываем YouGile в системном браузере
             window.location.href = TARGET;
             return;
         }
 
-        // ---------- Android: beforeinstallprompt ----------
-        let deferredPrompt = null;
-        const installAndroidBtn = document.getElementById('installAndroid');
+        // 2. Определяем платформу
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const installBtn = document.getElementById('installBtn');
         
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installAndroidBtn.classList.remove('hidden');
-        });
+        // Android: beforeinstallprompt
+        let deferredPrompt = null;
+        if (!isIOS) {
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installBtn.disabled = false;
+            });
+        }
 
-        installAndroidBtn.addEventListener('click', async () => {
-            if (!deferredPrompt) return;
-            installAndroidBtn.innerText = 'Установка...';
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            deferredPrompt = null;
-            if (outcome === 'accepted') {
-                installAndroidBtn.innerText = '✅ Приложение установлено!';
-                installAndroidBtn.disabled = true;
+        // 3. Обработчик кнопки
+        installBtn.addEventListener('click', () => {
+            if (isIOS) {
+                // Показываем модалку с инструкцией
+                const modal = document.getElementById('iosModal');
+                modal.style.display = 'flex';
+                document.getElementById('closeModal').onclick = () => {
+                    modal.style.display = 'none';
+                };
+                // Закрытие по клику вне модалки
+                modal.onclick = (e) => {
+                    if (e.target === modal) modal.style.display = 'none';
+                };
             } else {
-                installAndroidBtn.innerText = '📲 Установить приложение';
+                // Android
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            installBtn.innerText = '✅ Приложение установлено!';
+                            installBtn.disabled = true;
+                        }
+                        deferredPrompt = null;
+                    });
+                } else {
+                    alert('Ваш браузер не поддерживает автоматическую установку.\nДобавьте приложение вручную через меню браузера.');
+                }
             }
         });
 
-        // ---------- iOS: показываем инструкцию ----------
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const iosBlock = document.getElementById('iosBlock');
-        const showBtn = document.getElementById('showIosInstructions');
-        const instructionsDiv = document.getElementById('iosInstructions');
-        
-        if (isIOS) {
-            iosBlock.classList.remove('hidden');
-            showBtn.addEventListener('click', () => {
-                if (instructionsDiv.classList.contains('hidden')) {
-                    instructionsDiv.classList.remove('hidden');
-                } else {
-                    instructionsDiv.classList.add('hidden');
-                }
-            });
-        } else {
-            // Не iOS — скрываем iOS блок навсегда
-            iosBlock.style.display = 'none';
-        }
-
-        // Регистрация Service Worker (нужен для beforeinstallprompt на Android)
+        // 4. Регистрация Service Worker (нужен для beforeinstallprompt на Android)
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW error', e));
         }
