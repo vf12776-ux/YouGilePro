@@ -1,0 +1,20 @@
+{
+    "name": "YouGile Pro",
+    "short_name": "YouGile",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "theme_color": "#ffffff",
+    "background_color": "#ffffff",
+    "icons": [
+        {
+            "src": "icon45-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icon45-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
